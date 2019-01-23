@@ -41,7 +41,7 @@ class PopCart extends React.Component {
           variant="contained"
           onClick={this.handleClick}
         >
-          Open Popover
+          Shopping Cart
         </Button>
         <Popover
           id="simple-popper"
@@ -57,7 +57,7 @@ class PopCart extends React.Component {
             horizontal: 'center',
           }}
         >
-          <Typography className={classes.typography}>CART</Typography>
+          <Typography className={classes.typography}></Typography>
           <Cart 
           onDelete={this.props.onDelete}
           onReset={this.props.onReset}

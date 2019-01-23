@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import CatalogPage from './components/CatalogPage.js'
 import PopCart from './components/PopCart.js'
 import Filter from './components/Filter.js'
+import './App.scss'
 class App extends Component {
   constructor(props) {
     super(props);
@@ -87,7 +88,7 @@ class App extends Component {
                 my cart
       </ButtonContainer>*/}
       <div className="App">
-      <Filter 
+      <div className="sidebar"><Filter 
       sizes={this.state.sizes}
       selectedSize={this.state.selectedSize}
       onSizeSelect={this.handleSizeSelect}/>
@@ -96,7 +97,7 @@ class App extends Component {
         onReset={this.handleReset}
         products={this.state.products}
         cartProducts={this.state.cartProducts}
-        />
+        /></div>
         <CatalogPage 
         products={this.state.products}
         cartProducts={this.state.cartProducts}

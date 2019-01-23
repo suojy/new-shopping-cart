@@ -10,7 +10,7 @@ import FaceIcon from '@material-ui/icons/Face';
 const styles = theme => ({
   root: {
     width: '100%',
-    maxWidth: 360,
+    maxWidth: 60,
     backgroundColor: theme.palette.background.paper,
   },
 });
