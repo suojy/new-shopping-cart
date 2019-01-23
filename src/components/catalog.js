@@ -19,34 +19,40 @@ const styles = {
       backgroundSize: 'contain'
     },
   };
-const catalog =(props)=>{
-    const { classes } = props;
+class Catalog extends Component{
+    constructor(props) {
+      super(props);
+    }
+    render(){
+      const { classes } = this.props;
     return(
      <Card className="classes.card">
         <CardActionArea>
           <CardMedia
             className={classes.media}
-            image={require(`../static/data/products/${props.product.sku}_1.jpg`)}
+            image={require(`../static/data/products/${this.props.product.sku}_1.jpg`)}
             title="Contemplative Reptile"
           />
           <CardContent>
             <Typography font-size={16}>
-             {props.product.title}
+             {this.props.product.title}
             </Typography>
             <Typography textAlign="center">
-             {props.product.price}
+             {this.props.product.price}
             </Typography>
           </CardContent>
         </CardActionArea>
         <CardActions>
-          <Button size="small" color="primary">
-            Add to cart 
+          <Button size="small" color="primary"   onClick={() => this.props.onIncrement(this.props.product)}
+disabled={this.props.product.installments > 0 ? '' : 'disabled'}>
+            {this.props.product.installments > 0 ? 'Add to cart' : 'Sold Out'} 
           </Button>
         </CardActions>
       </Card>  
       );
+    }
   }
-  catalog.propTypes = {
+  Catalog.propTypes = {
     classes: PropTypes.object.isRequired,
   };
-  export default withStyles(styles)(catalog); 
+  export default withStyles(styles)(Catalog); 

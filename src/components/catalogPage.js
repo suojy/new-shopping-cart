@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
-import Catalog from './catalog.js';
+import Catalog from './Catalog.js';
 
 const styles = theme => ({
   root: {
@@ -18,7 +18,7 @@ const styles = theme => ({
   }
 });
 
-class catalogPage extends React.Component {
+class CatalogPage extends React.Component {
   state = {
     spacing: '16',
   };
@@ -32,12 +32,18 @@ class catalogPage extends React.Component {
   render() {
     const { classes } = this.props;
     const { spacing } = this.state;
+    const {products, addToCart} = this.props;
 
     return (
       <Grid container className={classes.root} spacing={24}>
-            {this.props.products.map(p => (
+            {products.map(p => (
                 <Grid item xs={3} className={classes.card}>
-                  <Catalog product={p}/>
+                  <Catalog 
+                  product={p} 
+                  key={p.id}
+                  products={this.props.products}
+                  cartProducts={this.props.cartProducts}
+                  onIncrement={this.props.onIncrement} />
                 </Grid>
             ))}
       </Grid>
@@ -45,8 +51,17 @@ class catalogPage extends React.Component {
   }
 }
 
-catalogPage.propTypes = {
+CatalogPage.propTypes = {
   classes: PropTypes.object.isRequired,
 };
+export default withStyles(styles)(CatalogPage);
 
-export default withStyles(styles)(catalogPage);
+/*
+const mapStateToProps = state => ({
+products: getVisibleProducts(state.products) //products的来源
+})
+
+export default connect(
+mapStateToProps,
+{ addToCart }
+)(ProductsContainer*/ 
