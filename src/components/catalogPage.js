@@ -41,8 +41,6 @@ class CatalogPage extends React.Component {
                   <Catalog 
                   product={p} 
                   key={p.id}
-                  products={this.props.products}
-                  cartProducts={this.props.cartProducts}
                   onIncrement={this.props.onIncrement} />
                 </Grid>
             ))}
