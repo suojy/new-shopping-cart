@@ -2,9 +2,12 @@ import React, { Component } from 'react';
 import CatalogPage from './components/CatalogPage.js'
 import PopCart from './components/PopCart.js'
 import Filter from './components/Filter.js'
+import CheckFilter from './components/CheckFilter.js'
 import './App.scss'
 import firebase from "firebase"
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
+import NavBar from './components/NavBar'
+
 firebase.initializeApp({
   apiKey:"AIzaSyDL1xfHHqUaKYRsXhW5VNqBOOAOe4mH-bg",
   authDomain:"new-shopping-cart-742e0.firebaseapp.com"
@@ -14,13 +17,14 @@ class App extends Component {
       products: [],
       cartProducts:[],
       sizes: [
-      {id:1,value:"XS"},
-      {id:2,value:"S"},
-      {id:3,value:"M"},
-      {id:4,value:"ML"},
-      {id:5,value:"L"},
-      {id:6,value:"XL"},
-      {id:7,value:"XXL"}],
+      {id:1,value:"XS",checked:false},
+      {id:2,value:"S",checked:false},
+      {id:3,value:"M",checked:false},
+      {id:4,value:"ML",checked:false},
+      {id:5,value:"L",checked:false},
+      {id:6,value:"XL",checked:false},
+      {id:7,value:"XXL",checked:false}],
+      selectedSizes:[],
       isSignedIn:false,
     };
     uiConfig={
@@ -55,10 +59,6 @@ class App extends Component {
     this.setState({ cartProducts,products});
   };
 
-  handleSizeSelect = size => {
-    this.setState({ selectedSize: size.value});
-  };
-
   handleReset = () => {
     const products = [...this.state.products];
     const cartProducts = this.state.cartProducts.map(p => {
@@ -68,20 +68,35 @@ class App extends Component {
     cartProducts.length=0;
     this.setState({ cartProducts, products});
   };
+  handleChecked= size=>event=> {
+    const sizes = [...this.state.sizes];
+    const selectedSizes = [...this.state.selectedSizes];
+    size.checked=event.target.checked;
+    this.setState({ sizes });
+    if(size.checked===true&&selectedSizes.indexOf(size)===-1){
+      selectedSizes.push(size)
+      this.setState({ selectedSizes});
+    }
+    if(size.checked===false){
+      var index = selectedSizes.indexOf(size);
+      selectedSizes.splice(index, 1);
+      this.setState({ selectedSizes});
+    }
+  };
 
   getPagedData = () => {
     const {
-      selectedSize,
+      selectedSizes,
       products: allproducts
     } = this.state;
-    const filtered =
-      selectedSize? allproducts.filter(p => p.availableSizes.some( (size,i) => (size===selectedSize) ))
-        :  allproducts;
+  
+    const filtered= selectedSizes.length>0?
+    allproducts.filter(p => p.availableSizes.some((s,i)=> selectedSizes.some((c,j) => c.value === s)))
+    :allproducts;
     return { totalCount: filtered.length, data: filtered };
   };
   render(){
     const { totalCount, data: products } = this.getPagedData();
-    console.log({products});
     return(
       <React.Fragment>
       {/*<ButtonContainer>
@@ -90,24 +105,25 @@ class App extends Component {
                 </span>
                 my cart
       </ButtonContainer>*/}
-      <div className="App">
-      <div className="Login">
-      {this.state.isSignedIn?(<span><div>Signed In!</div><button onclivk={()=>firebase.auth.signOut()}>Sign Out</button>
-       <h1>Welcome{firebase.auth().currentUser.displayName}</h1>
-       <img alt="profile picture" src={firebase.auth().currentUser.photoURL}/>
-       </span>):(<StyledFirebaseAuth 
-       uiConfig={this.uiConfig} firebaeAuth={firebase.auth()}/>)}
-      </div>
-      <p>{totalCount}</p>
-      <div className="sidebar"><Filter 
+      <NavBar
+       totalCount={totalCount}
+       onDelete={this.handleDelete}
+       onReset={this.handleReset}
+       products={products}
+       cartProducts={this.state.cartProducts}/>
+      <div className="sidebar">  
+      <div className="App"> 
+      <CheckFilter 
       sizes={this.state.sizes}
-      onSizeSelect={this.handleSizeSelect}/>
-      <PopCart className="PopCart" 
-        onDelete={this.handleDelete}
-        onReset={this.handleReset}
-        products={products}
-        cartProducts={this.state.cartProducts}
-        /></div>
+      onChecked={this.handleChecked}/>
+      <PopCart className="PopCart"  
+      onDelete={this.handleDelete}
+      onReset={this.handleReset}
+      products={products}
+      cartProducts={this.state.cartProducts}
+
+/>
+      </div>
         <CatalogPage 
         products={products}
         cartProducts={this.state.cartProducts}
