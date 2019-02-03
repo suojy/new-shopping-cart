@@ -19,7 +19,16 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
-import PopCart from './PopCart.js'
+import Popover from '@material-ui/core/Popover';
+import Cart from './Cart.js'
+import firebase from "firebase"
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
+import Button from '@material-ui/core/Button';
+import purple from '@material-ui/core/colors/purple';
+import green from '@material-ui/core/colors/green';
+import classNames from 'classnames';
+
+
 const styles = theme => ({
   root: {
     width: '100%',
@@ -37,16 +46,44 @@ const styles = theme => ({
       display: 'block',
     },
   },
-  sectionDesktop: {
-    display: 'none',
-    [theme.breakpoints.up('md')]: {
-      display: 'flex',
-    },
+  typography: {
+    margin: theme.spacing.unit * 2,
   },
-  sectionMobile: {
-    display: 'flex',
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
+  margin: {
+    margin: theme.spacing.unit*2,
+  },
+  bootstrapRoot: {
+    boxShadow: 'none',
+    textTransform: 'none',
+    fontSize: 16,
+    padding: '6px 12px',
+    border: '1px solid',
+    lineHeight: 1.5,
+    backgroundColor: '#007bff',
+    borderColor: '#007bff',
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+    '&:hover': {
+      backgroundColor: '#0069d9',
+      borderColor: '#0062cc',
+    },
+    '&:active': {
+      boxShadow: 'none',
+      backgroundColor: '#0062cc',
+      borderColor: '#005cbf',
+    },
+    '&:focus': {
+      boxShadow: '0 0 0 0.2rem rgba(0,123,255,.5)',
     },
   },
 });
@@ -57,26 +94,16 @@ class NavBar extends React.Component {
   }
   state = {
     anchorEl: null,
-    mobileMoreAnchorEl: null,
-  };
+    anchorEl_: null,
 
-  handleProfileMenuOpen = event => {
-    this.setState({ anchorEl: event.currentTarget });
   };
-
-  handleMenuClose = () => {
-    this.setState({ anchorEl: null });
-    this.handleMobileMenuClose();
-  };
-
-  handleMobileMenuOpen = event => {
-    this.setState({ mobileMoreAnchorEl: event.currentTarget });
-  };
-
-  handleMobileMenuClose = () => {
-    this.setState({ mobileMoreAnchorEl: null });
-  };
-  
+  uiConfig={
+    signInFlow:"popup",
+    signInOptions:[firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+    callbacks: {
+      signInSuccess: () => false
+    }
+  }
   handleClick = event => {
     this.setState({
       anchorEl: event.currentTarget,
@@ -88,58 +115,34 @@ class NavBar extends React.Component {
       anchorEl: null,
     });
   };
+  handleClick_ = event => {
+    this.setState({
+      anchorEl_: event.currentTarget,
+    });
+  };
+
+  handleClose_ = () => {
+    this.setState({
+      anchorEl_: null,
+    });
+  };
+  calculateNumber = () => {
+    let number = 0;
+    if (this.props.cartProducts.length !== 0) {
+        this.props.cartProducts.forEach(p => {
+        number += p.quantity
+      });
+    }
+    return number;
+  }
+ 
 
   render() {
-    const { anchorEl, mobileMoreAnchorEl } = this.state;
     const { classes } = this.props;
-    const isMenuOpen = Boolean(anchorEl);
-    const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-    const renderMenu = (
-      <Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={isMenuOpen}
-        onClose={this.handleMenuClose}
-      >
-        <MenuItem onClick={this.handleMenuClose}>Profile</MenuItem>
-        <MenuItem onClick={this.handleMenuClose}>My account</MenuItem>
-      </Menu>
-    );
-
-    const renderMobileMenu = (
-      <Menu
-        anchorEl={mobileMoreAnchorEl}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={isMobileMenuOpen}
-        onClose={this.handleMobileMenuClose}
-      >
-        <MenuItem>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <MailIcon />
-            </Badge>
-          </IconButton>
-          <p>Messages</p>
-        </MenuItem>
-        <MenuItem>
-          <IconButton color="inherit">
-            <Badge badgeContent={11} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-          <p>Notifications</p>
-        </MenuItem>
-        <MenuItem onClick={this.handleProfileMenuOpen}>
-          <IconButton color="inherit">
-            <AccountCircle />
-          </IconButton>
-          <p>Profile</p>
-        </MenuItem>
-      </Menu>
-    );
+    const { anchorEl } = this.state;
+    const open = Boolean(anchorEl);
+    const { anchorEl_ } = this.state;
+    const open_ = Boolean(anchorEl_);
     return (
       <div className={classes.root}>
         <AppBar position="static">
@@ -157,30 +160,81 @@ class NavBar extends React.Component {
                 <FavoriteIcon />
                 </Badge>
               </IconButton>
-              <IconButton 
-              color="inherit">
-                <Badge badgeContent={this.props.cartProducts.length} color="secondary" aria-label="Add to shopping cart">
+              <IconButton color="inherit" aria-owns={open ? 'simple-popper' : undefined}
+                aria-haspopup="true"
+                variant="contained"
+                onClick={this.handleClick} >
+                <Badge badgeContent={this.calculateNumber()} color="secondary" aria-label="Add to shopping cart">
                  <AddShoppingCartIcon />
                 </Badge>
               </IconButton>
+              <Popover
+          id="simple-popper"
+          open={open}
+          anchorEl={anchorEl}
+          onClose={this.handleClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <Typography className={classes.typography}></Typography>
+          <Cart 
+          onDelete={this.props.onDelete}
+          onReset={this.props.onReset}
+          products={this.props.products}
+          cartProducts={this.props.cartProducts}/>
+        </Popover>
               <IconButton
-                aria-owns={isMenuOpen ? 'material-appbar' : undefined}
+                color="inherit" aria-owns={open_ ? 'simple-popper' : undefined}
                 aria-haspopup="true"
-                onClick={this.handleProfileMenuOpen}
-                color="inherit"
+                variant="contained"
+                onClick={this.handleClick_} 
               >
                 <AccountCircle />
               </IconButton>
-            </div>
-            <div className={classes.sectionMobile}>
-              <IconButton aria-haspopup="true" onClick={this.handleMobileMenuOpen} color="inherit">
-                <MoreIcon />
-              </IconButton>
+              <Popover
+          id="simple-popper"
+          open={open_}
+          anchorEl={anchorEl_}
+          onClose={this.handleClose_}
+          anchorReference="anchorPosition"
+          anchorPosition={{ top: 60, left: 1000 }}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+        >
+        {this.props.isSignedIn ? (
+          <span>
+            <h5>Welcome {firebase.auth().currentUser.displayName}</h5>
+            <Button variant="contained"
+        color="primary"
+        disableRipple
+        className={classNames(classes.margin, classes.bootstrapRoot)}
+            onClick={() => firebase.auth().signOut()}>Sign out!</Button>
+            {/*<img
+              alt="profile picture"
+              src={firebase.auth().currentUser.photoURL}
+            />*/}
+          </span>
+        ) : (
+          <StyledFirebaseAuth
+            uiConfig={this.uiConfig}
+            firebaseAuth={firebase.auth()}
+          />
+        )}</Popover>
             </div>
           </Toolbar>
         </AppBar>
-        {renderMenu}
-        {renderMobileMenu}
       </div>
     );
   }

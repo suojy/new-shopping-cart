@@ -38,7 +38,7 @@ class Catalog extends Component{
              {this.props.product.title}
             </Typography>
             <Typography textAlign="center">
-             {this.props.product.price}
+            &#36;{this.props.product.price}
             </Typography>
           </CardContent>
         </CardActionArea>

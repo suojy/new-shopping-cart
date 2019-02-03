@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import CatalogPage from './components/CatalogPage.js'
-import PopCart from './components/PopCart.js'
+
 import Filter from './components/Filter.js'
 import CheckFilter from './components/CheckFilter.js'
 import './App.scss'
@@ -12,6 +12,7 @@ firebase.initializeApp({
   apiKey:"AIzaSyDL1xfHHqUaKYRsXhW5VNqBOOAOe4mH-bg",
   authDomain:"new-shopping-cart-742e0.firebaseapp.com"
 })
+
 class App extends Component {
   state = {
       products: [],
@@ -27,13 +28,7 @@ class App extends Component {
       selectedSizes:[],
       isSignedIn:false,
     };
-    uiConfig={
-      signInFlow:"popup",
-      signInOptions:[firebase.auth.GoogleAuthProvider.PROVIDER_ID],
-      callbacks: {
-        signInSuccess: () => false
-      }
-    }
+    
 
   componentDidMount() {
     firebase.auth().onAuthStateChanged(user=>{this.setState({isSignedIn:!!user})});
@@ -83,7 +78,9 @@ class App extends Component {
       this.setState({ selectedSizes});
     }
   };
-
+  signOut=()=>{
+    firebase.auth.signOut()
+  }
   getPagedData = () => {
     const {
       selectedSizes,
@@ -98,14 +95,12 @@ class App extends Component {
   render(){
     const { totalCount, data: products } = this.getPagedData();
     return(
+    
       <React.Fragment>
-      {/*<ButtonContainer>
-                <span className="mr-2">
-                <i className="fas fa-cart-plus" />
-                </span>
-                my cart
-      </ButtonContainer>*/}
       <NavBar
+       iConfig={this.props.iConfig}
+       isSignedIn={this.state.isSignedIn}
+       onSignOut={this.signOut}
        totalCount={totalCount}
        onDelete={this.handleDelete}
        onReset={this.handleReset}
@@ -116,13 +111,6 @@ class App extends Component {
       <CheckFilter 
       sizes={this.state.sizes}
       onChecked={this.handleChecked}/>
-      <PopCart className="PopCart"  
-      onDelete={this.handleDelete}
-      onReset={this.handleReset}
-      products={products}
-      cartProducts={this.state.cartProducts}
-
-/>
       </div>
         <CatalogPage 
         products={products}

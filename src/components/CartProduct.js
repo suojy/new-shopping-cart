@@ -52,10 +52,10 @@ function CartProduct (props){
             {props.product.title}
           </Typography>
           <Typography variant="subtitle1" color="textSecondary">
-            {props.product.quantity}
+            Quantity:{props.product.quantity}
           </Typography>
           <Typography variant="subtitle1" color="textSecondary">
-            {props.product.price}
+            Price:&#36;{props.product.price}
           </Typography>
         </CardContent>
         <div className={classes.controls}>
