@@ -9,7 +9,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import Badge from '@material-ui/core/Badge';
-import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { withStyles } from '@material-ui/core/styles';
@@ -24,10 +23,15 @@ import Cart from './Cart.js'
 import firebase from "firebase"
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
 import Button from '@material-ui/core/Button';
-import purple from '@material-ui/core/colors/purple';
-import green from '@material-ui/core/colors/green';
 import classNames from 'classnames';
-
+import Input from '@material-ui/core/Input';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import FilledInput from '@material-ui/core/FilledInput';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 const styles = theme => ({
   root: {
@@ -51,6 +55,10 @@ const styles = theme => ({
   },
   margin: {
     margin: theme.spacing.unit*2,
+  },
+  formControl: {
+    margin: theme.spacing.unit,
+    minWidth: 120,
   },
   bootstrapRoot: {
     boxShadow: 'none',
@@ -135,7 +143,10 @@ class NavBar extends React.Component {
     }
     return number;
   }
- 
+  handleChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
+
 
   render() {
     const { classes } = this.props;
@@ -153,6 +164,26 @@ class NavBar extends React.Component {
             <Typography className={classes.title} variant="h6" color="inherit" noWrap>
             {this.props.totalCount} Product(s) found. 
             </Typography>
+            <form>
+            <FormControl variant="filled" className={classes.formControl}>
+          <InputLabel htmlFor="filled-age-simple">Order By</InputLabel>
+          <Select
+            value={this.state.age}
+            onChange={this.handleChange}
+            input={<FilledInput name="age" id="filled-age-simple" />}
+          >
+          {this.props.orders.map(o => (
+        <MenuItem
+          key={o.id}
+          value={o.value}
+          onclick={() => this.props.onHandleSelected(o)}
+        >
+        {o.name}
+      </MenuItem>
+      ))}
+         </Select>
+        </FormControl>
+      </form>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
               <IconButton color="inherit">
@@ -203,7 +234,7 @@ class NavBar extends React.Component {
           anchorEl={anchorEl_}
           onClose={this.handleClose_}
           anchorReference="anchorPosition"
-          anchorPosition={{ top: 60, left: 1000 }}
+          anchorPosition={{ top: 60, left: 1100 }}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'center',
@@ -215,7 +246,7 @@ class NavBar extends React.Component {
         >
         {this.props.isSignedIn ? (
           <span>
-            <h5>Welcome {firebase.auth().currentUser.displayName}</h5>
+            <h5  className={classes.margin}>Welcome {firebase.auth().currentUser.displayName}</h5>
             <Button variant="contained"
         color="primary"
         disableRipple

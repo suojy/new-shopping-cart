@@ -11,6 +11,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 const styles = theme => ({
   card: {
     display: 'flex',
+    marginBottom:theme.spacing.unit*2,
   },
   details: {
     display: 'flex',
@@ -34,6 +35,7 @@ const styles = theme => ({
   },
   margin: {
     margin: theme.spacing.unit,
+
   },
 });
 

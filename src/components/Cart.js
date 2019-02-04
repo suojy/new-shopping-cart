@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 const styles = theme => ({
   margin: {
     margin: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit,
   },
   bootstrapRoot: {
     boxShadow: 'none',
@@ -70,9 +71,9 @@ const Cart = props => {
   }
   return (
     <div>
-      <h3> Your Cart </h3>
-      <div>{nodes}</div>
-      <p>Total: &#36;{calculateMoney()}</p>
+      <center><h3> Your Cart </h3></center>
+      <div className={classes.margin}>{nodes}</div>
+      <p className={classes.margin}>Total: &#36;{calculateMoney()}</p>
       <Button 
         variant="contained"
         color="primary"

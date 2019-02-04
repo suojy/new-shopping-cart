@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import CatalogPage from './components/CatalogPage.js'
-
+import _ from "lodash";
 import Filter from './components/Filter.js'
 import CheckFilter from './components/CheckFilter.js'
 import './App.scss'
@@ -27,6 +27,7 @@ class App extends Component {
       {id:7,value:"XXL",checked:false}],
       selectedSizes:[],
       isSignedIn:false,
+      orders:[{id:1,value:" ",name:"None"},{id:2,value:1,name:"Lowest to Highest"},{id:3,value:2,name:"Highest to Lowest"}],
     };
     
 
@@ -78,11 +79,31 @@ class App extends Component {
       this.setState({ selectedSizes});
     }
   };
+  handleOrderSelected=order=>{
+    this.setState({ selectedOrder: order.value});
+    console.log(this.state.selectedOrder);
+  }
+  handleSort = (selectedOrder,filtered) =>{
+    if(selectedOrder===1)
+      return this.handleSortLH(filtered);
+    else
+      return this.handleSortHL(filtered);    
+  };
+
+  handleSortLH = filtered => {
+    _.orderBy(filtered, ["price"], ["asc"]);
+};
+
+  handleSortHL = filtered => {
+    _.orderBy(filtered, ["price"], ["desc"]);
+  };
+
   signOut=()=>{
     firebase.auth.signOut()
   }
   getPagedData = () => {
     const {
+      selectedOrder,
       selectedSizes,
       products: allproducts
     } = this.state;
@@ -90,14 +111,20 @@ class App extends Component {
     const filtered= selectedSizes.length>0?
     allproducts.filter(p => p.availableSizes.some((s,i)=> selectedSizes.some((c,j) => c.value === s)))
     :allproducts;
+
+    const sorted = selectedOrder?filtered:this.handleSort(selectedOrder,filtered);
+    
     return { totalCount: filtered.length, data: filtered };
   };
+
   render(){
     const { totalCount, data: products } = this.getPagedData();
     return(
     
       <React.Fragment>
       <NavBar
+       orders={this.state.orders}
+       onOrderSelected={this.handleOrderSelected}
        iConfig={this.props.iConfig}
        isSignedIn={this.state.isSignedIn}
        onSignOut={this.signOut}
@@ -105,18 +132,19 @@ class App extends Component {
        onDelete={this.handleDelete}
        onReset={this.handleReset}
        products={products}
-       cartProducts={this.state.cartProducts}/>
+       cartProducts={this.state.cartProducts}
+       />
       <div className="sidebar">  
       <div className="App"> 
       <CheckFilter 
       sizes={this.state.sizes}
       onChecked={this.handleChecked}/>
-      </div>
         <CatalogPage 
         products={products}
         cartProducts={this.state.cartProducts}
         onIncrement={this.handleIncrement} 
         />
+        </div>
       </div>
       </React.Fragment>
     );
